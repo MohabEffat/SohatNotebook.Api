@@ -8,10 +8,7 @@ namespace DataService.Repository
 {
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
-        public UserRepository( 
-            AppDbContext context,
-            ILogger logger
-            ) : base(context, logger)
+        public UserRepository(AppDbContext context, ILogger logger) : base(context, logger)
         {
 
         }

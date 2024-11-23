@@ -1,6 +1,10 @@
-﻿namespace DataService.IConfiguration
+﻿using DataService.IRepository;
+
+namespace DataService.IConfiguration
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
+        IUserRepository Users { get; }
+        Task CompleteAsync();
     }
 }

@@ -1,5 +1,6 @@
 
 using DataService.Data;
+using DataService.IConfiguration;
 using Microsoft.EntityFrameworkCore;
 
 namespace SohatNotebook.Api
@@ -21,6 +22,8 @@ namespace SohatNotebook.Api
             {
                 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var app = builder.Build();
 

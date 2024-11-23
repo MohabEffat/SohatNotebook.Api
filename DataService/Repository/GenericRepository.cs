@@ -13,10 +13,7 @@ namespace DataService.Repository
         internal DbSet<TEntity> dbSet;
 
 
-        public GenericRepository(
-            AppDbContext context,
-            ILogger logger
-            )
+        public GenericRepository(AppDbContext context, ILogger logger)
         {
             _context = context;
             _logger = logger;
