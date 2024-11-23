@@ -1,4 +1,5 @@
 ﻿using DataService.Data;
+using DataService.IConfiguration;
 using Entities.DbSet;
 using Entities.Dtos;
 using Microsoft.AspNetCore.Mvc;
@@ -7,24 +8,21 @@ namespace SohatNotebook.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseController
     {
-        private readonly AppDbContext _context;
-        public UsersController(AppDbContext context)
+        public UsersController(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _context = context;
         }
 
-
         [HttpGet]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            var users = _context.Users.Where(x => x.Status == 1).ToList();
+            var users = await _unitOfWork.Users.GetAllAsync();
             return Ok(users);
         }
 
         [HttpPost]
-        public IActionResult AddUser(UserDto userDto)
+        public async Task<IActionResult> AddUser(UserDto userDto)
         {
             var user = new User
             {
@@ -37,17 +35,16 @@ namespace SohatNotebook.Api.Controllers
                 Status = 1
             };
 
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            await _unitOfWork.Users.AddAsync(user);
+            await _unitOfWork.CompleteAsync();
+
             return Ok();
         }
 
         [HttpGet("GetUser")]
-        //[Route("GetUser")]
-        public IActionResult GetUser(Guid Id)
+        public async Task<IActionResult> GetUser(Guid Id)
         {
-            var user = _context.Users.FirstOrDefault(x => x.Id == Id);
-
+            var user = await _unitOfWork.Users.GetByIdAsync(Id);
             return Ok(user);
         }
     }
