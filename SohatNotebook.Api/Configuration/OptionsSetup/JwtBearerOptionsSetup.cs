@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using SohatNotebook.Api.Configuration.Models;
+using SohatNotebook.Authentication.Configuration.Options;
 using System.Text;
 
 namespace SohatNotebook.Api.Configuration.OptionsSetup

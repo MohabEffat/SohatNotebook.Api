@@ -1,11 +1,11 @@
-
 using DataService.Data;
 using DataService.IConfiguration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SohatNotebook.Api.Configuration.Models;
 using SohatNotebook.Api.Configuration.OptionsSetup;
+using SohatNotebook.Api.Services.TokenService;
+using SohatNotebook.Authentication.Configuration.Options;
 
 namespace SohatNotebook.Api
 {
@@ -28,6 +28,7 @@ namespace SohatNotebook.Api
             });
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
 
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JWT"));
 
@@ -54,8 +55,9 @@ namespace SohatNotebook.Api
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseAuthentication();
 
+            app.UseAuthorization();
 
             app.MapControllers();
 

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using SohatNotebook.Api.Configuration.Models;
+using SohatNotebook.Authentication.Configuration.Options;
 
 namespace SohatNotebook.Api.Configuration.OptionsSetup
 {
