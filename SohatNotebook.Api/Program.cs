@@ -3,9 +3,12 @@ using DataService.IConfiguration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using SohatNotebook.Api.Configuration.OptionsSetup;
 using SohatNotebook.Api.Services.TokenService;
 using SohatNotebook.Authentication.Configuration.Options;
+using System.Text;
 
 namespace SohatNotebook.Api
 {
@@ -32,17 +35,42 @@ namespace SohatNotebook.Api
 
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JWT"));
 
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]!)),
+                RequireExpirationTime = false,
+                ValidateLifetime = true,
+            };
+
+            builder.Services.AddSingleton(tokenValidationParameters);
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer();
+            }).AddJwtBearer(jwt =>
+            {
+                jwt.SaveToken = true;
+                jwt.TokenValidationParameters = tokenValidationParameters;
+            });
 
-            builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+            //builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<AppDbContext>();
+
+
+
+            //builder.Services.AddSingleton(provider =>
+            //{
+            //    var jwtOptions = provider.GetRequiredService<IOptions<JwtOptions>>().Value;
+            //    var optionsSetup = new JwtBearerOptionsSetup(Options.Create(jwtOptions));
+            //    return optionsSetup.CreateTokenValidationParameters();
+            //});
 
             var app = builder.Build();
 

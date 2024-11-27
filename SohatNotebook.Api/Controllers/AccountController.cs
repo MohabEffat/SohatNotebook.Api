@@ -68,7 +68,6 @@ namespace SohatNotebook.Api.Controllers
                 });
             }
 
-
         }
     }
 }

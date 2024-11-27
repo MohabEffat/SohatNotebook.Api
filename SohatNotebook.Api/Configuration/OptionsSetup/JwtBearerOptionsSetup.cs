@@ -15,10 +15,14 @@ namespace SohatNotebook.Api.Configuration.OptionsSetup
             _jwtOptions = jwtOptions.Value;
         }
 
-
         public void Configure(JwtBearerOptions options)
         {
-            options.TokenValidationParameters = new()
+            options.TokenValidationParameters = CreateTokenValidationParameters();
+        }
+
+        public TokenValidationParameters CreateTokenValidationParameters()
+        {
+            return new TokenValidationParameters
             {
                 ValidateIssuer = false,
                 //ValidIssuer = _jwtOptions.Issuer,

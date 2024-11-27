@@ -35,7 +35,7 @@ namespace SohatNotebook.Api.Services.TokenService
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                Subject = new ClaimsIdentity(userClaims),
-               Expires = DateTime.UtcNow.AddHours(3),
+               Expires = DateTime.UtcNow.Add(_options.ExpiryTimeFrame),
                SigningCredentials = userCreds
             };
             var token = jwtHandler.CreateToken(tokenDescriptor);
