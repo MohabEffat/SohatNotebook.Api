@@ -67,7 +67,54 @@ namespace SohatNotebook.Api.Controllers
                     }
                 });
             }
+        }
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginDto input)
+        {
+            if (ModelState.IsValid)
+            {
+                var existUser = await _userManager.FindByEmailAsync(input.Email);
+                if (existUser == null)
+                {
+                    return BadRequest(new RegisterResponseDto
+                    {
+                        Success = false,
+                        Errors = new List<string> {
+                        "User Not Found"
+                        }
+                    });
+                }
+                var isCorrect = await _userManager.CheckPasswordAsync(existUser, input.Password);
 
+                if (isCorrect)
+                {
+                    return Ok(new RegisterResponseDto
+                    {
+                        Success = true,
+                        Token = _tokenService.GenerateTokenAsync(existUser)
+                    });
+                }
+                else
+                {
+                    return BadRequest(new RegisterResponseDto
+                    {
+                        Success = false,
+                        Errors = new List<string> {
+                        "Wrong Credentials"
+                        }
+                    });
+                }
+            }
+            else
+            {
+                return BadRequest(new RegisterResponseDto
+                {
+                    Success = false,
+                    Errors = new List<string> {
+                        "Wrong Credentials"
+                    }
+                });
+            }
         }
     }
 }

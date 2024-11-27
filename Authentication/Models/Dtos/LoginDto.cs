@@ -2,11 +2,11 @@
 
 namespace Authentication.Models.Dtos
 {
-    public class TokenRequestDto
+    public class LoginDto
     {
         [Required]
-        public string Token { get; set; }
+        public string Email { get; set; }
         [Required]
-        public string RefreshToken { get; set; }
+        public string Password { get; set; }
     }
 }
