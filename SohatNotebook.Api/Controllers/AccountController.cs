@@ -24,7 +24,7 @@ namespace SohatNotebook.Api.Controllers
         {
             if (ModelState.IsValid)
             {
-                var existUser = _userManager.FindByEmailAsync(input.Email);
+                var existUser = await _userManager.FindByEmailAsync(input.Email);
 
                 if (existUser == null)
                 {
@@ -56,7 +56,7 @@ namespace SohatNotebook.Api.Controllers
                 return Ok(new RegisterResponseDto
                 {
                     Success = true,
-                    Token = _tokenService.GenerateTokenAsync(newUser)
+                    Token = await _tokenService.GenerateTokenAsync(newUser)
                 });
             }
             else
@@ -95,7 +95,7 @@ namespace SohatNotebook.Api.Controllers
                     return Ok(new RegisterResponseDto
                     {
                         Success = true,
-                        Token = _tokenService.GenerateTokenAsync(existUser)
+                        Token = await _tokenService.GenerateTokenAsync(existUser)
                     });
                 }
                 else
@@ -105,7 +105,7 @@ namespace SohatNotebook.Api.Controllers
                         Success = false,
                         Errors = new List<string> {
                         "Wrong Credentials"
-                    }
+                        }
                     });
                 }
             }

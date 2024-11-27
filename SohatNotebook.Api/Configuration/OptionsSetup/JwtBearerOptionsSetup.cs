@@ -18,6 +18,7 @@ namespace SohatNotebook.Api.Configuration.OptionsSetup
 
         public void Configure(JwtBearerOptions options)
         {
+            options.SaveToken = true;
             options.TokenValidationParameters = new()
             {
                 ValidateIssuer = false,

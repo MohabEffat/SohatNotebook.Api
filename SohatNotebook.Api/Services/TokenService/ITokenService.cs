@@ -4,6 +4,6 @@ namespace SohatNotebook.Api.Services.TokenService
 {
     public interface ITokenService
     {
-        public string GenerateTokenAsync(IdentityUser user);
+        public Task<string> GenerateTokenAsync(IdentityUser user);
     }
 }

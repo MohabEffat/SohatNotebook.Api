@@ -15,12 +15,12 @@ namespace SohatNotebook.Api.Services.TokenService
         {
             _options = options.Value;
         }
-        public string GenerateTokenAsync(IdentityUser user)
+        public async Task<string> GenerateTokenAsync(IdentityUser user)
         {
 
             var jwtHandler = new JwtSecurityTokenHandler();
 
-            var key = new SymmetricSecurityKey (Encoding.ASCII.GetBytes(_options.Key));
+            var key = new SymmetricSecurityKey (Encoding.UTF8.GetBytes(_options.Key));
 
             var userClaims = new List<Claim>
             {
