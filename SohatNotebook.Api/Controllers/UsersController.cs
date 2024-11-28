@@ -2,12 +2,14 @@
 using DataService.IConfiguration;
 using Entities.DbSet;
 using Entities.Dtos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SohatNotebook.Api.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsersController : BaseController
     {
         public UsersController(IUnitOfWork unitOfWork) : base(unitOfWork)
