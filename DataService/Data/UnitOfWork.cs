@@ -16,9 +16,11 @@ namespace DataService.Data
             _logger = loggerFactory.CreateLogger("db_logs");
 
             Users = new UserRepository(context, _logger);
+            RefreshTokens = new RefreshTokenRepository(context, _logger);
         }
 
         public IUserRepository Users { get; private set; }
+        public IRefreshTokenRepository RefreshTokens { get; private set; }
 
         public async Task CompleteAsync()
         {

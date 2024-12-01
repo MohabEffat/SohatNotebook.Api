@@ -18,6 +18,38 @@ namespace SohatNotebook.Api.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenRequestDto input)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _tokenService.verifyToken(input);
+
+                if(result == null)
+                {
+                    return BadRequest(new RegisterResponseDto
+                    {
+                        Success = false,
+                        Errors = new List<string>
+                        {
+                            "Token Validation Failed"
+                        }
+                    });
+                }
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(new RegisterResponseDto
+                {
+                    Success = false,
+                    Errors = new List<string> {
+                        "Email Already Exists"
+                    }
+                });
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Register([FromBody]RegisterDto input)
         {
             if (ModelState.IsValid)
@@ -31,7 +63,7 @@ namespace SohatNotebook.Api.Controllers
                         Success = false,
                         Errors = new List<string> {
                         "Email Already Exists"
-                    }
+                        }
                     });
                 }
                 var newUser = new IdentityUser
@@ -42,6 +74,7 @@ namespace SohatNotebook.Api.Controllers
                 };
 
                 var isCreated = await _userManager.CreateAsync(newUser, input.Password);
+
                 if (!isCreated.Succeeded)
                 {
                     return BadRequest(new RegisterResponseDto
@@ -51,10 +84,13 @@ namespace SohatNotebook.Api.Controllers
                     });
                 }
 
+                var jwtToken = await _tokenService.GenerateTokenAsync(newUser);
+
                 return Ok(new RegisterResponseDto
                 {
                     Success = true,
-                    Token = _tokenService.GenerateTokenAsync(newUser)
+                    Token = jwtToken.JwtToken,
+                    RefreshToken = jwtToken.RefreshToken
                 });
             }
             else
@@ -67,8 +103,56 @@ namespace SohatNotebook.Api.Controllers
                     }
                 });
             }
+        }
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginDto input)
+        {
+            if (ModelState.IsValid)
+            {
+                var existUser = await _userManager.FindByEmailAsync(input.Email);
+                if (existUser == null)
+                {
+                    return BadRequest(new RegisterResponseDto
+                    {
+                        Success = false,
+                        Errors = new List<string> {
+                        "User Not Found"
+                        }
+                    });
+                }
+                var isCorrect = await _userManager.CheckPasswordAsync(existUser, input.Password);
 
-
+                if (isCorrect)
+                {
+                    var jwtToken = await _tokenService.GenerateTokenAsync(existUser);
+                    return Ok(new RegisterResponseDto
+                    {
+                        Success = true,
+                        Token = jwtToken.JwtToken,
+                        RefreshToken = jwtToken.RefreshToken
+                    });
+                }
+                else
+                {
+                    return BadRequest(new RegisterResponseDto
+                    {
+                        Success = false,
+                        Errors = new List<string> {
+                        "Wrong Credentials"
+                        }
+                    });
+                }
+            }
+            else
+            {
+                return BadRequest(new RegisterResponseDto
+                {
+                    Success = false,
+                    Errors = new List<string> {
+                        "Wrong Credentials"
+                    }
+                });
+            }
         }
     }
 }
