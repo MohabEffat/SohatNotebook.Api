@@ -95,9 +95,7 @@ namespace SohatNotebook.Api.Services.TokenService
 
             try
             {
-                Console.WriteLine($"Verifying Refresh Token: {input.RefreshToken}");
-
-                var principal = tokenHandler.ValidateToken(input.RefreshToken, _validationParameters, out var validatedToken);
+                var principal = tokenHandler.ValidateToken(input.Token, _validationParameters, out var validatedToken);
 
                 if (validatedToken is JwtSecurityToken jwtSecurityToken)
                 {
