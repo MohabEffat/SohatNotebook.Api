@@ -1,4 +1,7 @@
-﻿namespace Entities.DbSet
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Entities.DbSet
 {
     public class User : BaseEntity
     {

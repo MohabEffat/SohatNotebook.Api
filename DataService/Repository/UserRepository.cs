@@ -28,6 +28,21 @@ namespace DataService.Repository
             }
         }
 
+        public async Task<User?> GetByIdentityIdAsync(Guid identityId)
+        {
+            try
+            {
+                return await dbSet.Where(x => x.Status == 1 && x.IdentityId == identityId)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{typeof(UserRepository)} all Method Has Generated An Error");
+                return null;
+            }
+        }
+
         public async Task<bool> UpdateUserProfile(User user)
         {
             try
@@ -42,6 +57,7 @@ namespace DataService.Repository
                 existingUser.PhoneNumber = user.PhoneNumber;
                 existingUser.FirstName = user.FirstName;
                 existingUser.LastName = user.LastName;
+                return true;
 
             }
             catch (Exception ex)

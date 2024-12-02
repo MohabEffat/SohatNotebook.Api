@@ -7,5 +7,6 @@ namespace DataService.IRepository
         //Task<User> GetByEmailAddress(string Email);
 
         Task<bool> UpdateUserProfile(User user);
+        Task<User?> GetByIdentityIdAsync(Guid identityId);
     }
 }
