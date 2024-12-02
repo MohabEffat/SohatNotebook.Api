@@ -43,7 +43,7 @@ namespace DataService.Repository
             }
         }
 
-        public async Task<bool> UpdateUserProfile(User user)
+        public async Task<bool> UpdateUserProfileAsync(User user)
         {
             try
             {

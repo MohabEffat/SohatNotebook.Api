@@ -91,6 +91,9 @@ namespace SohatNotebook.Api.Controllers
                 user.Phone = "";
                 user.Country = "";
                 user.Status = 1;
+                user.Address = "";
+                user.PhoneNumber = "";
+                user.Sex = "";
 
                 await _unitOfWork.Users.AddAsync(user);
                 await _unitOfWork.CompleteAsync();
