@@ -17,10 +17,13 @@ namespace DataService.Data
 
             Users = new UserRepository(context, _logger);
             RefreshTokens = new RefreshTokenRepository(context, _logger);
+            HealthData = new HealthDataRepository(context, _logger);
         }
 
         public IUserRepository Users { get; private set; }
         public IRefreshTokenRepository RefreshTokens { get; private set; }
+
+        public IHealthDataRepository HealthData  { get; private set; }
 
         public async Task CompleteAsync()
         {
