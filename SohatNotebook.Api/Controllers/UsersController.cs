@@ -48,7 +48,17 @@ namespace SohatNotebook.Api.Controllers
         public async Task<IActionResult> GetUser(Guid Id)
         {
             var user = await _unitOfWork.Users.GetByIdAsync(Id);
-            return Ok(user);
+            var result = new Response<User>();
+
+            if (user != null)
+            {
+                result.Content = user!;
+                return Ok(user);
+            }
+            result.Error = PopulateError(404, "User Not Found", "Object Not Found");
+            return BadRequest(result);
+
+
         }
     }
 }

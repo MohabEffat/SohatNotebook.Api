@@ -1,5 +1,7 @@
 ﻿using DataService.IConfiguration;
+using Entities.DbSet;
 using Entities.Dtos;
+using Entities.Dtos.Errors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,31 +21,52 @@ namespace SohatNotebook.Api.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+
+            var response = new Response<User>();
+
             if (currentUser == null)
-                return BadRequest("User Not Found");
+            {
+                response.Error = PopulateError(400, "User Not Found", "Bad Requset");
+                return BadRequest(response);
+            }
 
             var profile = await _unitOfWork.Users.GetByIdentityIdAsync(new Guid(currentUser.Id));
 
             if (profile == null)
-                return BadRequest("User Not Found");
+            {
+                response.Error = PopulateError(400, "User Not Found", "Bad Requset");
+                return BadRequest(response);
+            }
+            response.Content = profile;
 
-
-            return Ok(profile);
+            return Ok(response);
         }
+
         [HttpPost]
         public async Task<IActionResult> UpdateProfile(UpdateProfileDto input)
         {
+            var response = new Response<User>();
+
             if (!ModelState.IsValid)
-                return BadRequest("Invalid Payload");
+            {
+                response.Error = PopulateError(400, "User Not Found", "Bad Requset");
+                return BadRequest(response);
+            }
 
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null)
-                return BadRequest("User Not Found");
+            {
+                response.Error = PopulateError(400, "User Not Found", "Bad Requset");
+                return BadRequest(response);
+            }
 
             var profile = await _unitOfWork.Users.GetByIdentityIdAsync(new Guid(currentUser.Id));
 
             if (profile == null)
-                return BadRequest("User Not Found");
+            {
+                response.Error = PopulateError(400, "User Not Found", "Bad Requset");
+                return BadRequest(response);
+            }
 
             profile.Address = input.Address;
             profile.FirstName = input.FirstName;
@@ -56,10 +79,13 @@ namespace SohatNotebook.Api.Controllers
             if (isUpdated)
             {
                 await _unitOfWork.CompleteAsync();
-                return Ok(profile);
+                response.Content = profile;
+                return Ok(response);
             }
 
-            return BadRequest("Error, Try Again");
+            response.Error = PopulateError(500, "Something went wrong, please try again later", "Unable to process the request");
+
+            return BadRequest(response);
 
         }
 
