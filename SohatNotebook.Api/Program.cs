@@ -30,6 +30,7 @@ namespace SohatNotebook.Api
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JWT"));
 

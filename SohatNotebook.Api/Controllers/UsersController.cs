@@ -1,4 +1,5 @@
-﻿using DataService.Data;
+﻿using AutoMapper;
+using DataService.Data;
 using DataService.IConfiguration;
 using Entities.DbSet;
 using Entities.Dtos;
@@ -13,7 +14,7 @@ namespace SohatNotebook.Api.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsersController : BaseController
     {
-        public UsersController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager) : base(unitOfWork, userManager)
+        public UsersController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, IMapper mapper) : base(unitOfWork, userManager, mapper)
         {
         }
 
@@ -27,24 +28,18 @@ namespace SohatNotebook.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> AddUser(UserDto userDto)
         {
-            var user = new User
-            {
-                FirstName = userDto.FirstName,
-                LastName = userDto.LastName,
-                Email = userDto.Email,
-                DateOfBirth = userDto.DateOfBirth,
-                Country = userDto.Country,
-                Phone = userDto.Phone,
-                Status = 1
-            };
+            var mappedUser = _mapper.Map<User>(userDto);
 
-            await _unitOfWork.Users.AddAsync(user);
+            await _unitOfWork.Users.AddAsync(mappedUser);
             await _unitOfWork.CompleteAsync();
 
-            return Ok();
+            var response = new Response<User>();
+            response.Content = mappedUser;
+
+            return Ok(response);
         }
 
-        [HttpGet("GetUser")]
+        [HttpGet]
         public async Task<IActionResult> GetUser(Guid Id)
         {
             var user = await _unitOfWork.Users.GetByIdAsync(Id);

@@ -1,4 +1,5 @@
 ﻿using Authentication.Models.Dtos;
+using AutoMapper;
 using DataService.IConfiguration;
 using Entities.DbSet;
 using Microsoft.AspNetCore.Identity;
@@ -11,7 +12,8 @@ namespace SohatNotebook.Api.Controllers
     {
         private readonly ITokenService _tokenService;
 
-        public AccountController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ITokenService tokenService) : base(unitOfWork, userManager)
+        public AccountController(IUnitOfWork unitOfWork,
+            UserManager<IdentityUser> userManager, ITokenService tokenService, IMapper mapper) : base(unitOfWork, userManager, mapper)
         {
             _tokenService = tokenService;
         }

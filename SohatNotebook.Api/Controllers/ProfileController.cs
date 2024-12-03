@@ -1,4 +1,5 @@
-﻿using DataService.IConfiguration;
+﻿using AutoMapper;
+using DataService.IConfiguration;
 using Entities.DbSet;
 using Entities.Dtos;
 using Entities.Dtos.Errors;
@@ -13,7 +14,7 @@ namespace SohatNotebook.Api.Controllers
     public class ProfileController : BaseController
     {
 
-        public ProfileController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager) : base(unitOfWork, userManager)
+        public ProfileController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, IMapper mapper) : base(unitOfWork, userManager, mapper)
         {
         }
 
@@ -22,7 +23,7 @@ namespace SohatNotebook.Api.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
-            var response = new Response<User>();
+            var response = new Response<UserDto>();
 
             if (currentUser == null)
             {
@@ -37,7 +38,8 @@ namespace SohatNotebook.Api.Controllers
                 response.Error = PopulateError(400, "User Not Found", "Bad Requset");
                 return BadRequest(response);
             }
-            response.Content = profile;
+            var mappedUser = _mapper.Map<UserDto>(profile);
+            response.Content = mappedUser;
 
             return Ok(response);
         }
@@ -45,7 +47,7 @@ namespace SohatNotebook.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateProfile(UpdateProfileDto input)
         {
-            var response = new Response<User>();
+            var response = new Response<ProfileDto>();
 
             if (!ModelState.IsValid)
             {
@@ -68,18 +70,16 @@ namespace SohatNotebook.Api.Controllers
                 return BadRequest(response);
             }
 
-            profile.Address = input.Address;
-            profile.FirstName = input.FirstName;
-            profile.LastName = input.LastName;
-            profile.Country = input.Country;
-            profile.PhoneNumber = input.PhoneNumber;
-
             var isUpdated = await _unitOfWork.Users.UpdateUserProfileAsync(profile);
 
             if (isUpdated)
             {
                 await _unitOfWork.CompleteAsync();
-                response.Content = profile;
+
+                var mappedProfile = _mapper.Map<ProfileDto>(profile);
+
+                response.Content = mappedProfile;
+
                 return Ok(response);
             }
 
