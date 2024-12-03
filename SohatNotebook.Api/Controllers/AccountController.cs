@@ -1,5 +1,6 @@
 ﻿using Authentication.Models.Dtos;
 using DataService.IConfiguration;
+using Entities.DbSet;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SohatNotebook.Api.Services.TokenService;
@@ -8,12 +9,10 @@ namespace SohatNotebook.Api.Controllers
 {
     public class AccountController : BaseController
     {
-        private readonly UserManager<IdentityUser> _userManager;
         private readonly ITokenService _tokenService;
 
-        public AccountController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ITokenService tokenService) : base(unitOfWork)
+        public AccountController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, ITokenService tokenService) : base(unitOfWork, userManager)
         {
-            _userManager = userManager;
             _tokenService = tokenService;
         }
 
@@ -83,6 +82,22 @@ namespace SohatNotebook.Api.Controllers
                         Errors = isCreated.Errors.Select(x => x.Description).ToList()
                     });
                 }
+
+                var user = new User();
+                user.IdentityId = new Guid(newUser.Id);
+                user.FirstName = input.FirstName;
+                user.LastName = input.LastName;
+                user.Email = input.Email;
+                user.Phone = "";
+                user.Country = "";
+                user.Status = 1;
+                user.Address = "";
+                user.PhoneNumber = "";
+                user.Sex = "";
+
+                await _unitOfWork.Users.AddAsync(user);
+                await _unitOfWork.CompleteAsync();
+                
 
                 var jwtToken = await _tokenService.GenerateTokenAsync(newUser);
 

@@ -28,5 +28,43 @@ namespace DataService.Repository
             }
         }
 
+        public async Task<User?> GetByIdentityIdAsync(Guid identityId)
+        {
+            try
+            {
+                return await dbSet.Where(x => x.Status == 1 && x.IdentityId == identityId)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{typeof(UserRepository)} all Method Has Generated An Error");
+                return null;
+            }
+        }
+
+        public async Task<bool> UpdateUserProfileAsync(User user)
+        {
+            try
+            {
+                var existingUser =  await dbSet.Where(x => x.Status == 1 && x.Id == user.Id)
+                            .FirstOrDefaultAsync();
+                if (existingUser is null)
+                    return false;
+                existingUser.UpdateDate = DateTime.Now;
+                existingUser.Sex = user.Sex;
+                existingUser.Address = user.Address;
+                existingUser.PhoneNumber = user.PhoneNumber;
+                existingUser.FirstName = user.FirstName;
+                existingUser.LastName = user.LastName;
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{typeof(UserRepository)} all Method Has Generated An Error");
+                return false;
+            }
+        }
     }
 }
