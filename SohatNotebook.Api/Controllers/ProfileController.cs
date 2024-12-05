@@ -1,5 +1,8 @@
-﻿using DataService.IConfiguration;
+﻿using AutoMapper;
+using DataService.IConfiguration;
+using Entities.DbSet;
 using Entities.Dtos;
+using Entities.Dtos.Errors;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,7 +14,7 @@ namespace SohatNotebook.Api.Controllers
     public class ProfileController : BaseController
     {
 
-        public ProfileController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager) : base(unitOfWork, userManager)
+        public ProfileController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, IMapper mapper) : base(unitOfWork, userManager, mapper)
         {
         }
 
@@ -19,47 +22,70 @@ namespace SohatNotebook.Api.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+
+            var response = new Response<UserDto>();
+
             if (currentUser == null)
-                return BadRequest("User Not Found");
+            {
+                response.Error = PopulateError(400, "User Not Found", "Bad Requset");
+                return BadRequest(response);
+            }
 
             var profile = await _unitOfWork.Users.GetByIdentityIdAsync(new Guid(currentUser.Id));
 
             if (profile == null)
-                return BadRequest("User Not Found");
+            {
+                response.Error = PopulateError(400, "User Not Found", "Bad Requset");
+                return BadRequest(response);
+            }
+            var mappedUser = _mapper.Map<UserDto>(profile);
+            response.Content = mappedUser;
 
-
-            return Ok(profile);
+            return Ok(response);
         }
+
         [HttpPost]
         public async Task<IActionResult> UpdateProfile(UpdateProfileDto input)
         {
+            var response = new Response<ProfileDto>();
+
             if (!ModelState.IsValid)
-                return BadRequest("Invalid Payload");
+            {
+                response.Error = PopulateError(400, "User Not Found", "Bad Requset");
+                return BadRequest(response);
+            }
 
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null)
-                return BadRequest("User Not Found");
+            {
+                response.Error = PopulateError(400, "User Not Found", "Bad Requset");
+                return BadRequest(response);
+            }
 
             var profile = await _unitOfWork.Users.GetByIdentityIdAsync(new Guid(currentUser.Id));
 
             if (profile == null)
-                return BadRequest("User Not Found");
-
-            profile.Address = input.Address;
-            profile.FirstName = input.FirstName;
-            profile.LastName = input.LastName;
-            profile.Country = input.Country;
-            profile.PhoneNumber = input.PhoneNumber;
+            {
+                response.Error = PopulateError(400, "User Not Found", "Bad Requset");
+                return BadRequest(response);
+            }
 
             var isUpdated = await _unitOfWork.Users.UpdateUserProfileAsync(profile);
 
             if (isUpdated)
             {
                 await _unitOfWork.CompleteAsync();
-                return Ok(profile);
+
+                var mappedProfile = _mapper.Map<ProfileDto>(profile);
+
+                response.Content = mappedProfile;
+
+                return Ok(response);
             }
 
-            return BadRequest("Error, Try Again");
+            response.Error = PopulateError(500, "Something went wrong, please try again later", "Unable to process the request");
+
+            return BadRequest(response);
 
         }
 
